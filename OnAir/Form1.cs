@@ -100,23 +100,37 @@ namespace OnAir
             timer1.Enabled = false;
             bool result = IsWebCamInUse();
 
-            if (result)
+            try
             {
-                
-                pictureBox1.Visible = true;
-                pictureBox2.Visible = false;
-                SerialController.OnAirDevice(1);
-                //this.TopMost = true;
+
+                if (result)
+                {
+
+                    pictureBox1.Visible = true;
+                    pictureBox2.Visible = false;
+                    SerialController.OnAirDevice(1);
+                    
+                    //this.TopMost = true;
+
+                }
+                else
+                {
+                    pictureBox1.Visible = false;
+                    pictureBox2.Visible = true;
+                    SerialController.OnAirDevice(0);
+                    
+                    //this.TopMost = false;
+                }
+                pictureBox3.Image = OnAir.Properties.Resources.connected;
+                timer1.Enabled = true;
+            }
+            catch (Exception onAirError)
+            {
+                pictureBox3.Image = OnAir.Properties.Resources.disconnected;
+                Console.WriteLine(onAirError);
+                timer1.Enabled = true;
 
             }
-            else
-            {
-                pictureBox1.Visible = false;
-                pictureBox2.Visible = true;
-                SerialController.OnAirDevice(0);
-                //this.TopMost = false;
-            }
-            timer1.Enabled = true;
 
         }
 
@@ -140,6 +154,16 @@ namespace OnAir
                 HelperFunctions.AddOrUpdateAppSettings("devicemode", selectMode);
 
             }
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            SerialController.OnAirDevice(0);    // Reset the device = it will come back on of the web cam is still active
+        }
+
+        private void pictureBox3_Click(object sender, EventArgs e)
+        {
+
         }
     }
 
