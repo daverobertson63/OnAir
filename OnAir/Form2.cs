@@ -72,6 +72,7 @@ namespace OnAir
             }
             comboBox2.Text = webcamregkey;
 
+            
         }
 
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
@@ -89,7 +90,8 @@ namespace OnAir
                 HelperFunctions.AddOrUpdateAppSettings("devicemode", selectMode);
 
             }
-
+            // Set the mode of the controller
+            HelperFunctions.setDeviceMode();
         }
 
         private void button2_Click(object sender, EventArgs e)
@@ -114,9 +116,11 @@ namespace OnAir
 
         private void button1_Click(object sender, EventArgs e)
         {
+            // Try to connect device based on mode
+            
             try
             {
-                SerialController.OnAirDevice(0);
+                var res = SerialController.OnAirDeviceAsync(DeviceState.Off);
                 MessageBoxButtons buttons = MessageBoxButtons.YesNo;
                 DialogResult result = MessageBox.Show("Device Connected OK", "OnAir Device", MessageBoxButtons.OK, MessageBoxIcon.Information);
 

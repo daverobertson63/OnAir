@@ -1,4 +1,5 @@
-﻿using System;
+﻿
+using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Diagnostics;
@@ -7,15 +8,25 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.IO;
+using System.Net;
+using System.Reflection;
+
+using RestSharp;
+using System.Threading;
+
 
 namespace OnAir
 {
+
+
     // Class to to control the device via serial port using simple handshaking
     // The device is controlled by sending a simple single byte - 48=full, 49=pulse or 50=off
     // The response to a succesful send will be 2 x bytes "OK"
-    
+
     internal static class SerialController
     {
+                
         static SerialPort serialPort;
         static string endOfString = "\r\n";
         static readonly object _commandLock = new object();
@@ -25,15 +36,55 @@ namespace OnAir
         static bool WaitingForSerialData = false; // Set in SerialWrite(), cleared in SerialRead()
         public static String _portName { get; set; }
         public static int _baudRate { get; set; }
-        public  static int _writeTimout=1000;
+        public static int _writeTimout = 1000;
         public static int _readTimout = 2000;
         private static String buffer = string.Empty;
-        public static int deviceState { get; set; }
+        
+        public static String deviceHostName { get; set; }
+
+        // These three things control the state of the device and also what the state of the UI requires.
+        public static DeviceState deviceState = DeviceState.Off;
+        public static DeviceMode deviceMode = DeviceMode.NotConnected;   // Start with no mode
+        public static DeviceState displayMode = DeviceState.Off;
+        
 
 
-    public static Boolean OnAirDevice(int mode)
+        public static async Task<RestSharp.RestResponse> OnAirDeviceRESTAsync(DeviceState mode)
         {
 
+            string path = Assembly.GetExecutingAssembly().Location;
+            string name = Path.GetFileName(path);
+            RestRequest request=null;
+
+            string restdevice = ConfigurationManager.AppSettings["restdevice"];
+
+            var client = new RestClient("http://" + restdevice);
+            if (mode == DeviceState.Off)                
+            {
+                request = new RestRequest("setOff", Method.Get);
+            } else if (mode == DeviceState.On)
+            {
+                request = new RestRequest("setOn", Method.Get);
+            }
+            else if (mode== DeviceState.Pulse)
+            {        
+                request = new RestRequest("setPulse", Method.Get);
+            }
+        
+            var response = await client.ExecuteGetAsync(request);
+
+            Console.WriteLine(response.ResponseStatus.ToString());
+            Console.WriteLine(response.ToString());
+
+            var result = response;
+
+            return result;
+
+        }
+
+    public static async Task<bool> OnAirDeviceAsync(DeviceState mode)
+        {
+            
             // If the device is connected via serial - we do that 
             string comport = ConfigurationManager.AppSettings["serialdevice"];
             string baudrate = ConfigurationManager.AppSettings["serialbaud"];
@@ -42,33 +93,52 @@ namespace OnAir
 
             String commandByte="9";
             
-
-            if (mode==0)
+            if (mode==DeviceState.Off)
             {
-                commandByte = "0";
+                
+                if (deviceState == DeviceState.Off)
+                    return false;
                 deviceState = mode;
+                commandByte = "0";
             }
-            else if (mode==1 )
+            else if (mode== DeviceState.On )
             {
-                if (deviceState == 1) 
+                if (deviceState == DeviceState.On) 
                     return false;
                 commandByte= "1";
+                deviceState = mode;
+
             }
-            else if (mode == 2)
+            else if (mode == DeviceState.Pulse)
             {
-                if (deviceState == 1)
+                if (deviceState == DeviceState.Pulse)
                     return false;
+
+                deviceState = mode;
                 commandByte = "2";
             }
-
-            deviceState = mode;
+            else if (mode == DeviceState.Reset)
+            {
+                deviceState = DeviceState.Off;
+                mode = DeviceState.Off;
+                commandByte = "0";
+            }
+                     
 
             try
             {
-                SerialController.OpenPort();
-                String result = SerialController.SendCommand(commandByte);
-                Console.WriteLine(result);
+                if (deviceMode == DeviceMode.REST)
+                {
+                    var response = await OnAirDeviceRESTAsync(mode);
+                    Console.WriteLine(response.Content.ToString());
+                }
+                else
+                {
 
+                    SerialController.OpenPort();
+                    String result = SerialController.SendCommand(commandByte);
+                    Console.WriteLine(result);
+                }
             }
             catch (Exception tex)
 
@@ -82,7 +152,12 @@ namespace OnAir
             }
             finally
             {
-                SerialController.ClosePort();
+                if (deviceMode == DeviceMode.Serial)
+                {
+                    SerialController.ClosePort();
+                    
+                }
+                
             }
 
             return true;

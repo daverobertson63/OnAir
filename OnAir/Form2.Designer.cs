@@ -66,8 +66,9 @@
             this.comboBox1.FormattingEnabled = true;
             this.comboBox1.Items.AddRange(new object[] {
             "Serial Connection",
-            "REST with WIFI"});
-            this.comboBox1.Location = new System.Drawing.Point(30, 77);
+            "REST with WIFI",
+            "Not Connected"});
+            this.comboBox1.Location = new System.Drawing.Point(35, 77);
             this.comboBox1.Name = "comboBox1";
             this.comboBox1.Size = new System.Drawing.Size(420, 33);
             this.comboBox1.TabIndex = 2;

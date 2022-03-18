@@ -95,9 +95,9 @@
             // 
             this.comboBox1.FormattingEnabled = true;
             this.comboBox1.Items.AddRange(new object[] {
-            "Normal ",
-            "Pulse ",
-            "Off"});
+            "Off",
+            "On",
+            "Pulse"});
             this.comboBox1.Location = new System.Drawing.Point(27, 147);
             this.comboBox1.Name = "comboBox1";
             this.comboBox1.Size = new System.Drawing.Size(350, 33);

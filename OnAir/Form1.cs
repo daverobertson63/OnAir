@@ -12,8 +12,11 @@ using System.Windows.Forms;
 
 namespace OnAir
 {
+    
     public partial class Form1 : Form
     {
+        DeviceMode deviceMode=DeviceMode.NotConnected;  // State of the device as required by UI and settings
+        DeviceState deviceState = DeviceState.Off;  // State of the device as required by UI and settings
         public Form1()
         {
             InitializeComponent();
@@ -91,6 +94,16 @@ namespace OnAir
             string displaymode = ConfigurationManager.AppSettings["displaymode"];
 
             comboBox1.Text = displaymode;
+
+            if (displaymode.Equals("On"))
+                deviceState = DeviceState.On;
+            if (displaymode.Equals("Off"))
+                deviceState = DeviceState.Off;
+            if (displaymode.Equals("Pulse"))
+                deviceState = DeviceState.Pulse;
+
+
+            HelperFunctions.setDeviceMode();
         }
 
         private void timer1_Tick(object sender, EventArgs e)
@@ -98,17 +111,20 @@ namespace OnAir
             //Console.WriteLine("Timer - check status of WebCam");
 
             timer1.Enabled = false;
-            bool result = IsWebCamInUse();
+            
+
 
             try
             {
+                bool result = IsWebCamInUse();
 
+                
                 if (result)
                 {
 
                     pictureBox1.Visible = true;
                     pictureBox2.Visible = false;
-                    SerialController.OnAirDevice(1);
+                    var res = SerialController.OnAirDeviceAsync(SerialController.displayMode);
                     
                     //this.TopMost = true;
 
@@ -117,7 +133,7 @@ namespace OnAir
                 {
                     pictureBox1.Visible = false;
                     pictureBox2.Visible = true;
-                    SerialController.OnAirDevice(0);
+                    var res = SerialController.OnAirDeviceAsync(DeviceState.Off);
                     
                     //this.TopMost = false;
                 }
@@ -130,6 +146,10 @@ namespace OnAir
                 Console.WriteLine(onAirError);
                 timer1.Enabled = true;
 
+            }
+            finally
+            {
+                timer1.Enabled = true;
             }
 
         }
@@ -151,14 +171,18 @@ namespace OnAir
             {
                 // Update the app setting 
                 Console.WriteLine(selectMode);
-                HelperFunctions.AddOrUpdateAppSettings("devicemode", selectMode);
+                HelperFunctions.AddOrUpdateAppSettings("displaymode", selectMode);
+                
 
             }
+            HelperFunctions.setDisplayMode(selectMode);
+
+
         }
 
         private void button2_Click(object sender, EventArgs e)
         {
-            SerialController.OnAirDevice(0);    // Reset the device = it will come back on of the web cam is still active
+            var result= SerialController.OnAirDeviceAsync(DeviceState.Reset);    // Reset the device = it will come back on of the web cam is still active
         }
 
         private void pictureBox3_Click(object sender, EventArgs e)
