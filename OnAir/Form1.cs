@@ -17,6 +17,7 @@ namespace OnAir
     {
         DeviceMode deviceMode=DeviceMode.NotConnected;  // State of the device as required by UI and settings
         DeviceState deviceState = DeviceState.Off;  // State of the device as required by UI and settings
+        Boolean topMode = false;   
         public Form1()
         {
             InitializeComponent();
@@ -102,13 +103,25 @@ namespace OnAir
             if (displaymode.Equals("Pulse"))
                 deviceState = DeviceState.Pulse;
 
-
+                    
+            
             HelperFunctions.setDeviceMode();
+
+            string topmode = ConfigurationManager.AppSettings["topmode"];
+
+            // Set the checkbox
+            checkBox1.Checked = Convert.ToBoolean(topmode);
+            topMode = Convert.ToBoolean(topmode);
+
+            //< add key = "topmode" value = "True" />
         }
 
         private void timer1_Tick(object sender, EventArgs e)
         {
             //Console.WriteLine("Timer - check status of WebCam");
+
+            string topmode = ConfigurationManager.AppSettings["topmode"];
+            topMode = Convert.ToBoolean(topmode);
 
             timer1.Enabled = false;
             
@@ -125,8 +138,8 @@ namespace OnAir
                     pictureBox1.Visible = true;
                     pictureBox2.Visible = false;
                     var res = SerialController.OnAirDeviceAsync(SerialController.displayMode);
-                    
-                    //this.TopMost = true;
+
+                    this.TopMost = topMode;
 
                 }
                 else
@@ -135,7 +148,7 @@ namespace OnAir
                     pictureBox2.Visible = true;
                     var res = SerialController.OnAirDeviceAsync(DeviceState.Off);
                     
-                    //this.TopMost = false;
+                    this.TopMost = topMode;
                 }
                 pictureBox3.Image = OnAir.Properties.Resources.connected;
                 timer1.Enabled = true;
@@ -156,6 +169,23 @@ namespace OnAir
 
         private void checkBox1_CheckedChanged(object sender, EventArgs e)
         {
+            string topmode = ConfigurationManager.AppSettings["topmode"];
+
+           var result = Convert.ToBoolean(topmode);
+
+            CheckBox cb = (CheckBox)sender;
+                                    
+
+            if (cb != null)
+            {
+                // Update the app setting 
+                Console.WriteLine(cb);
+                
+                HelperFunctions.AddOrUpdateAppSettings("topmode", cb.Checked.ToString()   );
+                                
+            }
+
+            
 
         }
 
