@@ -45,7 +45,7 @@ namespace OnAir
 
         private void button1_Click(object sender, EventArgs e)
         {
-            bool result = IsWebCamInUse();
+            bool result = IsWebCamInUse(SerialController.detectMode);
 
             if (result)
             {
@@ -62,8 +62,22 @@ namespace OnAir
             Form2 f2 = new Form2();
             f2.ShowDialog();
         }
-        private static bool IsWebCamInUse()
+        
+        private static bool IsWebCamInUse(DetectMode mode)
         {
+
+            //Computer\HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\microphone\NonPackaged
+
+                // We check the setting 
+            if (SerialController.detectMode == DetectMode.Manual)
+            {
+                if (SerialController.displayMode== DeviceState.On ||  SerialController.displayMode == DeviceState.Pulse )
+                    return true;
+            }
+           
+            Boolean webcam = false;
+            Boolean microphone = false; 
+            
             using (var key = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\webcam\NonPackaged"))
             {
                 foreach (var subKeyName in key.GetSubKeyNames())
@@ -73,15 +87,59 @@ namespace OnAir
                         if (subKey.GetValueNames().Contains("LastUsedTimeStop"))
                         {
                             //Console.WriteLine(subKey);
+                            Console.WriteLine(subKeyName + " Value: " + subKey.GetValue("LastUsedTimeStop"));
                             var endTime = subKey.GetValue("LastUsedTimeStop") is long ? (long)subKey.GetValue("LastUsedTimeStop") : -1;
                             if (endTime <= 0)
                             {
 
                                 Console.WriteLine("Webcam app in use is: " + subKey);
-                                return true;
+                                webcam = true;
+                                
                             }
                         }
                     }
+                }
+            }
+
+            using (var key = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\microphone\NonPackaged"))
+            {
+                foreach (var subKeyName in key.GetSubKeyNames())
+                {
+                    using (var subKey = key.OpenSubKey(subKeyName))
+                    {
+                        if (subKey.GetValueNames().Contains("LastUsedTimeStop"))
+                        {
+                            //Console.WriteLine(subKey);
+                            Console.WriteLine(subKeyName + " Value: " + subKey.GetValue("LastUsedTimeStop"));
+                            var endTime = subKey.GetValue("LastUsedTimeStop") is long ? (long)subKey.GetValue("LastUsedTimeStop") : -1;
+                            if (endTime <= 0)
+                            {
+
+                                Console.WriteLine("Webcam app in use is: " + subKey);
+                                microphone = true;
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (SerialController.detectMode == DetectMode.Microphone)
+            {
+                if (microphone)
+                    return true;
+            }
+            else if (SerialController.detectMode == DetectMode.Camera)
+            { 
+                if (webcam)
+                {
+                    return true;
+                } 
+            }
+            else if (SerialController.detectMode == DetectMode.CameraMicrophone)
+            {
+                if (webcam && microphone)
+                {
+                    return true;
                 }
             }
 
@@ -113,6 +171,10 @@ namespace OnAir
             checkBox1.Checked = Convert.ToBoolean(topmode);
             topMode = Convert.ToBoolean(topmode);
 
+            string detectmode = ConfigurationManager.AppSettings["detectmode"];
+            comboBox2.Text = detectmode;
+            HelperFunctions.setDetectMode();
+
             //< add key = "topmode" value = "True" />
         }
 
@@ -129,9 +191,9 @@ namespace OnAir
 
             try
             {
-                bool result = IsWebCamInUse();
+                bool result = IsWebCamInUse(SerialController.detectMode);
 
-                
+
                 if (result)
                 {
 
@@ -139,7 +201,7 @@ namespace OnAir
                     pictureBox2.Visible = false;
                     var res = SerialController.OnAirDeviceAsync(SerialController.displayMode);
 
-                    this.TopMost = topMode;
+                    //this.TopMost = topMode;
 
                 }
                 else
@@ -148,7 +210,7 @@ namespace OnAir
                     pictureBox2.Visible = true;
                     var res = SerialController.OnAirDeviceAsync(DeviceState.Off);
                     
-                    this.TopMost = topMode;
+                    //this.TopMost = topMode;
                 }
                 pictureBox3.Image = OnAir.Properties.Resources.connected;
                 timer1.Enabled = true;
@@ -184,8 +246,8 @@ namespace OnAir
                 HelperFunctions.AddOrUpdateAppSettings("topmode", cb.Checked.ToString()   );
                                 
             }
+            this.TopMost = cb.Checked;
 
-            
 
         }
 
@@ -218,6 +280,25 @@ namespace OnAir
         private void pictureBox3_Click(object sender, EventArgs e)
         {
 
+        }
+
+        private void comboBox2_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            string detectmode = ConfigurationManager.AppSettings["detectmode"];
+
+            if (comboBox2.SelectedItem == null) return;
+
+            var selectMode = (String)comboBox2.SelectedItem;
+
+            if (selectMode != null)
+            {
+                // Update the app setting 
+                Console.WriteLine(selectMode);
+                HelperFunctions.AddOrUpdateAppSettings("detectmode", selectMode);
+
+
+            }
+            HelperFunctions.setDetectMode();
         }
     }
 

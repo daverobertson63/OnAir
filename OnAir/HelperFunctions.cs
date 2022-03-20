@@ -26,6 +26,28 @@ namespace OnAir
                 SerialController.deviceMode = DeviceMode.NotConnected;
             }
         }
+        public static void setDetectMode()
+        {
+            String detectMode = ConfigurationManager.AppSettings["detectmode"];
+
+            if (detectMode.Equals("Manual"))
+            {
+                SerialController.detectMode = DetectMode.Manual;
+            }
+            else if (detectMode.Equals("Camera"))
+            {
+                SerialController.detectMode = DetectMode.Camera;
+            }
+            else if (detectMode.Equals("Microphone"))
+            {
+                SerialController.detectMode = DetectMode.Microphone;
+            }
+            else if (detectMode.Equals("Camera and Microphone"))
+            {
+                SerialController.detectMode = DetectMode.CameraMicrophone;
+            }
+                        
+        }
         public static void setDisplayMode(String theState)
         {
             
@@ -119,6 +141,7 @@ namespace OnAir
 
     public enum DeviceMode : int { Serial, REST, NotConnected, Other }
     public enum DeviceState : int { Off, On, Pulse, Reset }
+    public enum DetectMode : int { Manual, Camera, Microphone, CameraMicrophone }
 
 
 

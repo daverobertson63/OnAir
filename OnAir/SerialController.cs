@@ -46,7 +46,7 @@ namespace OnAir
         public static DeviceState deviceState = DeviceState.Off;
         public static DeviceMode deviceMode = DeviceMode.NotConnected;   // Start with no mode
         public static DeviceState displayMode = DeviceState.Off;
-        
+        public static DetectMode detectMode = DetectMode.Manual;        
 
 
         public static async Task<RestSharp.RestResponse> OnAirDeviceRESTAsync(DeviceState mode)
