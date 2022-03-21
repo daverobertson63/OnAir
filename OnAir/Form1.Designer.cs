@@ -39,9 +39,11 @@
             this.button2 = new System.Windows.Forms.Button();
             this.pictureBox2 = new System.Windows.Forms.PictureBox();
             this.pictureBox3 = new System.Windows.Forms.PictureBox();
-            this.comboBox2 = new System.Windows.Forms.ComboBox();
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
+            this.comboBox2 = new System.Windows.Forms.ComboBox();
+            this.checkBox2 = new System.Windows.Forms.CheckBox();
+            this.notifyIcon1 = new System.Windows.Forms.NotifyIcon(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox3)).BeginInit();
@@ -60,7 +62,7 @@
             // 
             this.button1.Location = new System.Drawing.Point(27, 12);
             this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(157, 71);
+            this.button1.Size = new System.Drawing.Size(150, 71);
             this.button1.TabIndex = 0;
             this.button1.Text = "Connect to Device";
             this.button1.UseVisualStyleBackColor = true;
@@ -110,11 +112,11 @@
             // 
             // button2
             // 
-            this.button2.Location = new System.Drawing.Point(190, 13);
+            this.button2.Location = new System.Drawing.Point(200, 12);
             this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(140, 70);
+            this.button2.Size = new System.Drawing.Size(150, 71);
             this.button2.TabIndex = 6;
-            this.button2.Text = "Reset";
+            this.button2.Text = "Reset State";
             this.button2.UseVisualStyleBackColor = true;
             this.button2.Click += new System.EventHandler(this.button2_Click);
             // 
@@ -122,7 +124,7 @@
             // 
             this.pictureBox2.Cursor = System.Windows.Forms.Cursors.Default;
             this.pictureBox2.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox2.Image")));
-            this.pictureBox2.Location = new System.Drawing.Point(453, 13);
+            this.pictureBox2.Location = new System.Drawing.Point(491, 12);
             this.pictureBox2.Name = "pictureBox2";
             this.pictureBox2.Size = new System.Drawing.Size(400, 300);
             this.pictureBox2.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
@@ -132,29 +134,16 @@
             // pictureBox3
             // 
             this.pictureBox3.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
+            this.pictureBox3.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
             this.pictureBox3.Image = global::OnAir.Properties.Resources.connected;
             this.pictureBox3.InitialImage = ((System.Drawing.Image)(resources.GetObject("pictureBox3.InitialImage")));
-            this.pictureBox3.Location = new System.Drawing.Point(352, 19);
+            this.pictureBox3.Location = new System.Drawing.Point(372, 12);
             this.pictureBox3.Name = "pictureBox3";
-            this.pictureBox3.Size = new System.Drawing.Size(75, 56);
+            this.pictureBox3.Size = new System.Drawing.Size(71, 71);
             this.pictureBox3.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.pictureBox3.TabIndex = 8;
             this.pictureBox3.TabStop = false;
             this.pictureBox3.Click += new System.EventHandler(this.pictureBox3_Click);
-            // 
-            // comboBox2
-            // 
-            this.comboBox2.FormattingEnabled = true;
-            this.comboBox2.Items.AddRange(new object[] {
-            "Manual",
-            "Camera",
-            "Microphone",
-            "Camera and Microphone"});
-            this.comboBox2.Location = new System.Drawing.Point(171, 211);
-            this.comboBox2.Name = "comboBox2";
-            this.comboBox2.Size = new System.Drawing.Size(276, 33);
-            this.comboBox2.TabIndex = 9;
-            this.comboBox2.SelectedIndexChanged += new System.EventHandler(this.comboBox2_SelectedIndexChanged);
             // 
             // label1
             // 
@@ -168,17 +157,51 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(22, 211);
+            this.label2.Location = new System.Drawing.Point(22, 216);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(134, 25);
             this.label2.TabIndex = 11;
             this.label2.Text = "Detect Mode";
             // 
+            // comboBox2
+            // 
+            this.comboBox2.FormattingEnabled = true;
+            this.comboBox2.Items.AddRange(new object[] {
+            "Manual",
+            "Camera",
+            "Microphone",
+            "Camera and Microphone"});
+            this.comboBox2.Location = new System.Drawing.Point(171, 212);
+            this.comboBox2.Name = "comboBox2";
+            this.comboBox2.Size = new System.Drawing.Size(276, 33);
+            this.comboBox2.TabIndex = 9;
+            this.comboBox2.SelectedIndexChanged += new System.EventHandler(this.comboBox2_SelectedIndexChanged);
+            // 
+            // checkBox2
+            // 
+            this.checkBox2.AutoSize = true;
+            this.checkBox2.Location = new System.Drawing.Point(190, 100);
+            this.checkBox2.Name = "checkBox2";
+            this.checkBox2.Size = new System.Drawing.Size(280, 29);
+            this.checkBox2.TabIndex = 12;
+            this.checkBox2.Text = "Notify from System Tray";
+            this.checkBox2.UseVisualStyleBackColor = true;
+            this.checkBox2.CheckedChanged += new System.EventHandler(this.checkBox2_CheckedChanged);
+            // 
+            // notifyIcon1
+            // 
+            this.notifyIcon1.BalloonTipIcon = System.Windows.Forms.ToolTipIcon.Info;
+            this.notifyIcon1.BalloonTipText = "You are now On Air!";
+            this.notifyIcon1.BalloonTipTitle = "ON Air Active";
+            this.notifyIcon1.Icon = ((System.Drawing.Icon)(resources.GetObject("notifyIcon1.Icon")));
+            this.notifyIcon1.Text = "You are now On Air!";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(12F, 25F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(900, 324);
+            this.ClientSize = new System.Drawing.Size(900, 280);
+            this.Controls.Add(this.checkBox2);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.comboBox2);
@@ -214,9 +237,11 @@
         private System.Windows.Forms.Button button2;
         private System.Windows.Forms.PictureBox pictureBox2;
         private System.Windows.Forms.PictureBox pictureBox3;
-        private System.Windows.Forms.ComboBox comboBox2;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.ComboBox comboBox2;
+        private System.Windows.Forms.CheckBox checkBox2;
+        private System.Windows.Forms.NotifyIcon notifyIcon1;
     }
 }
 

@@ -66,9 +66,10 @@ namespace OnAir
         private static bool IsWebCamInUse(DetectMode mode)
         {
 
+            // Hack - seems the only way to know if its in use by non microsoft apps,
             //Computer\HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\microphone\NonPackaged
 
-                // We check the setting 
+            // We check the setting 
             if (SerialController.detectMode == DetectMode.Manual)
             {
                 if (SerialController.displayMode== DeviceState.On ||  SerialController.displayMode == DeviceState.Pulse )
@@ -115,7 +116,7 @@ namespace OnAir
                             if (endTime <= 0)
                             {
 
-                                Console.WriteLine("Webcam app in use is: " + subKey);
+                                Console.WriteLine("Microphone app in use is: " + subKey);
                                 microphone = true;
                             }
                         }
@@ -175,6 +176,12 @@ namespace OnAir
             comboBox2.Text = detectmode;
             HelperFunctions.setDetectMode();
 
+
+            string poptray = ConfigurationManager.AppSettings["poptray"];
+                      
+
+            checkBox2.Checked = Convert.ToBoolean(poptray); ;
+
             //< add key = "topmode" value = "True" />
         }
 
@@ -185,18 +192,16 @@ namespace OnAir
             string topmode = ConfigurationManager.AppSettings["topmode"];
             topMode = Convert.ToBoolean(topmode);
 
-            timer1.Enabled = false;
+            timer1.Enabled = false;       
             
-
-
             try
             {
                 bool result = IsWebCamInUse(SerialController.detectMode);
 
-
                 if (result)
                 {
 
+                   
                     pictureBox1.Visible = true;
                     pictureBox2.Visible = false;
                     var res = SerialController.OnAirDeviceAsync(SerialController.displayMode);
@@ -213,6 +218,19 @@ namespace OnAir
                     //this.TopMost = topMode;
                 }
                 pictureBox3.Image = OnAir.Properties.Resources.connected;
+
+                if (deviceState != SerialController.deviceState && SerialController.deviceState != DeviceState.Off)
+                {
+
+                    if (checkBox2.Checked) { 
+                        notifyIcon1.Visible = true;
+                        notifyIcon1.ShowBalloonTip(3000);
+                    }
+                    
+
+                }
+                deviceState = SerialController.deviceState;
+
                 timer1.Enabled = true;
             }
             catch (Exception onAirError)
@@ -231,7 +249,7 @@ namespace OnAir
 
         private void checkBox1_CheckedChanged(object sender, EventArgs e)
         {
-            string topmode = ConfigurationManager.AppSettings["topmode"];
+           string topmode = ConfigurationManager.AppSettings["topmode"];
 
            var result = Convert.ToBoolean(topmode);
 
@@ -299,6 +317,26 @@ namespace OnAir
 
             }
             HelperFunctions.setDetectMode();
+        }
+
+        private void checkBox2_CheckedChanged(object sender, EventArgs e)
+        {
+            string poptray = ConfigurationManager.AppSettings["poptray"];
+
+            var result = Convert.ToBoolean(poptray);
+
+            CheckBox cb = (CheckBox)sender;
+
+
+            if (cb != null)
+            {
+                // Update the app setting 
+                Console.WriteLine(cb);
+
+                HelperFunctions.AddOrUpdateAppSettings("poptray", cb.Checked.ToString());
+
+            }
+            this.TopMost = cb.Checked;
         }
     }
 
