@@ -147,6 +147,31 @@ namespace OnAir
             return false;
         }
 
+        /*
+         * On this event - only close if its the quit button
+         * otherwise we neeed to iconify in the tray
+         */
+
+        
+        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        {
+
+            if (e.CloseReason == CloseReason.UserClosing)
+            {
+                Console.WriteLine(sender.ToString());
+                this.Hide();
+
+                notifyIcon.Visible = true;
+                notifyIcon.ShowBalloonTip(1000);
+                
+                
+                e.Cancel = true;
+            }
+            
+
+        }
+
+
         private void Form1_Load(object sender, EventArgs e)
         {
             pictureBox1.Visible = false;
@@ -337,6 +362,11 @@ namespace OnAir
 
             }
             this.TopMost = cb.Checked;
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            System.Windows.Forms.Application.Exit();
         }
     }
 

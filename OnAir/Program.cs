@@ -14,9 +14,21 @@ namespace OnAir
         [STAThread]
         static void Main()
         {
+
+            bool result;
+            var mutex = new System.Threading.Mutex(true, "UniqueAppId", out result);
+
+            if (!result)
+            {
+                MessageBox.Show("Another instance is already running - get stuffed.");
+                return;
+            }
+
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new Form1());
+
+            GC.KeepAlive(mutex);
         }
     }
 }
